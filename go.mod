@@ -10,7 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/redis/go-redis/v9 v9.22.0
-	github.com/sony/gobreaker v1.0.0
+	github.com/sony/gobreaker/v2 v2.4.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.11.1

@@ -1,9 +1,10 @@
 package resilience
 
 import (
+	"context"
 	"time"
 
-	"github.com/sony/gobreaker"
+	"github.com/sony/gobreaker/v2"
 )
 
 type CircuitBreakerConfig struct {
@@ -22,14 +23,18 @@ func DefaultCircuitBreakerConfig(name string) CircuitBreakerConfig {
 	}
 }
 
-func NewCircuitBreaker(cfg CircuitBreakerConfig) *gobreaker.CircuitBreaker {
-	return gobreaker.NewCircuitBreaker(gobreaker.Settings{
+func NewCircuitBreaker[T any](cfg CircuitBreakerConfig) *gobreaker.CircuitBreaker[T] {
+	return gobreaker.NewCircuitBreaker[T](gobreaker.Settings{
 		Name:        cfg.Name,
 		MaxRequests: cfg.MaxRequests,
 		Interval:    cfg.Interval,
 		Timeout:     cfg.Timeout,
 		ReadyToTrip: func(counts gobreaker.Counts) bool {
 			return counts.ConsecutiveFailures > 5
+		},
+		IsSuccessful: func(err error) bool {
+			// Context cancellations are not real failures — don't trip the breaker
+			return err == nil || err == context.Canceled || err == context.DeadlineExceeded
 		},
 	})
 }

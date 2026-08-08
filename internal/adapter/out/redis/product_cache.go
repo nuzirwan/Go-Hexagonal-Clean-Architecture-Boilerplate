@@ -8,7 +8,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	goredis "github.com/redis/go-redis/v9"
-	"github.com/sony/gobreaker"
+	"github.com/sony/gobreaker/v2"
 
 	"github.com/nuzirwan/go-boilerplate/internal/domain/entity"
 	"github.com/nuzirwan/go-boilerplate/pkg/resilience"
@@ -17,7 +17,7 @@ import (
 type ProductCache struct {
 	client  *goredis.Client
 	ttl     time.Duration
-	breaker *gobreaker.CircuitBreaker
+	breaker *gobreaker.CircuitBreaker[*entity.Product]
 	timeout time.Duration
 }
 
@@ -25,15 +25,13 @@ func NewProductCache(client *goredis.Client, ttl time.Duration) *ProductCache {
 	return &ProductCache{
 		client:  client,
 		ttl:     ttl,
-		breaker: resilience.NewCircuitBreaker(resilience.DefaultCircuitBreakerConfig("redis-product-cache")),
+		breaker: resilience.NewCircuitBreaker[*entity.Product](resilience.DefaultCircuitBreakerConfig("redis-product-cache")),
 		timeout: 500 * time.Millisecond,
 	}
 }
 
 func (c *ProductCache) Get(ctx context.Context, id string) (*entity.Product, error) {
-	var product *entity.Product
-
-	_, err := c.breaker.Execute(func() (any, error) {
+	product, err := c.breaker.Execute(func() (*entity.Product, error) {
 		ctx, cancel := context.WithTimeout(ctx, c.timeout)
 		defer cancel()
 
@@ -49,8 +47,7 @@ func (c *ProductCache) Get(ctx context.Context, id string) (*entity.Product, err
 		if err := sonic.Unmarshal(data, &p); err != nil {
 			return nil, nil // corrupted data — treat as miss, don't trip breaker
 		}
-		product = &p
-		return nil, nil
+		return &p, nil
 	})
 
 	if err != nil {

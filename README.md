@@ -314,7 +314,7 @@ make docker-down           # Stop everything
 | gRPC | `google.golang.org/grpc` | Standard |
 | Observability | `otelc` + OTel SDK | Zero-code, compile-time |
 | Logging | `log/slog` stdlib | Structured, trace-correlated via otelc |
-| Resilience | `sony/gobreaker` + `x/sync` | Circuit breaker + singleflight |
+| Resilience | `sony/gobreaker/v2` + `x/sync` | Circuit breaker (generics) + singleflight |
 | Validation | `go-playground/validator` | Tag-based, on port DTOs |
 | IDs | `oklog/ulid` | Sortable, no DB seq |
 | CLI | `cobra` | Multi-command binary |
