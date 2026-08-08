@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package product.v1;
+
+option go_package = "github.com/nuzirwan/go-boilerplate/api/proto/product/v1;productv1";
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc ApplyDiscount(ApplyDiscountRequest) returns (ApplyDiscountResponse);
+}
+
+message CreateProductRequest {
+  string name = 1;
+  double price = 2;
+  string currency = 3;
+  int32 stock = 4;
+}
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message ApplyDiscountRequest {
+  string product_id = 1;
+  double percentage = 2;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message ApplyDiscountResponse {
+  Product product = 1;
+}
+
+message Product {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  string currency = 4;
+  int32 stock = 5;
+  string status = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}

@@ -1,0 +1,66 @@
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - bodyclose
+    - sqlclosecheck
+    - govet
+    - contextcheck
+    - errcheck
+    - gosec
+    - goimports
+    - gofumpt
+    - unused
+    - ineffassign
+    - staticcheck
+    - depguard
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/nuzirwan/go-boilerplate
+  gosec:
+    excludes:
+      - G104
+
+  depguard:
+    rules:
+      domain-isolation:
+        list-mode: lax
+        files:
+          - "**/internal/domain/**"
+        deny:
+          - pkg: "github.com/nuzirwan/go-boilerplate/internal/adapter"
+            desc: "domain must not import adapter (hexagonal violation)"
+          - pkg: "github.com/nuzirwan/go-boilerplate/pkg"
+            desc: "domain must not import pkg (hexagonal violation)"
+          - pkg: "database/sql"
+            desc: "domain must not import database/sql"
+          - pkg: "net/http"
+            desc: "domain must not import net/http"
+          - pkg: "github.com/gin-gonic/gin"
+            desc: "no web framework in domain"
+          - pkg: "github.com/labstack/echo"
+            desc: "no web framework in domain"
+          - pkg: "google.golang.org/grpc"
+            desc: "domain must not import gRPC"
+          - pkg: "github.com/redis/go-redis"
+            desc: "domain must not import redis"
+          - pkg: "github.com/jackc/pgx"
+            desc: "domain must not import pgx"
+
+      adapter-in-isolation:
+        list-mode: lax
+        files:
+          - "**/internal/adapter/in/**"
+        deny:
+          - pkg: "github.com/nuzirwan/go-boilerplate/internal/adapter/out"
+            desc: "inbound adapter must not import outbound adapter"
+
+      adapter-out-isolation:
+        list-mode: lax
+        files:
+          - "**/internal/adapter/out/**"
+        deny:
+          - pkg: "github.com/nuzirwan/go-boilerplate/internal/adapter/in"
+            desc: "outbound adapter must not import inbound adapter"
